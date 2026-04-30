@@ -1,347 +1,419 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Budget Tracker | Multi-Currency Edition</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-
-    :root {
-      --bg: #030712;
-      --card: rgba(17, 24, 39, 0.8);
-      --accent: #6366f1;
-      --success: #10b981;
-      --danger: #f43f5e;
-      --text-main: #f9fafb;
-      --text-dim: #9ca3af;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .app-container { width: 100%; max-width: 440px; opacity: 0; }
-
-    .header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-    .header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-    .header-info { text-align: right; }
-    .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px var(--success); }
-    .date-time { font-size: 0.7rem; font-weight: 600; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    .main-card {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 32px;
-      padding: 30px;
-      margin-bottom: 20px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    .label { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .amount-big { font-size: 2.8rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -1px; }
-    .sub-values { color: var(--text-dim); font-size: 0.95rem; font-weight: 600; margin-bottom: 20px; }
-    .currency-tag { font-size: 0.7rem; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-right: 4px; color: #fff; }
-
-    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
-    .mini-card { background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .mini-card .val { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
-    .mini-card .multi { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; display: block; }
-
-    input {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 18px 20px;
-      border-radius: 20px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 1rem;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    input:focus { outline: none; border-color: var(--accent); background: rgba(0,0,0,0.5); }
-
-    .btn-primary {
-      width: 100%;
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 18px;
-      border-radius: 20px;
-      font-weight: 800;
-      font-size: 1rem;
-      margin-top: 12px;
-      cursor: pointer;
-      box-shadow: 0 10px 20px -10px var(--accent);
-      transition: all 0.3s;
-    }
-    .btn-primary:active { transform: scale(0.98); }
-
-    .rate-ticker {
-      background: rgba(99, 102, 241, 0.1);
-      padding: 10px 15px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent);
-      display: inline-block;
-      margin-top: 15px;
-    }
-
-    .chart-container { height: 280px; margin-top: 10px; position: relative; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone 16 Pro Max - Budget Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    .status-pill {
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .safe { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-    .warn { background: rgba(244, 63, 94, 0.1); color: var(--danger); }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-    .footer {
-      text-align: center;
-      margin-top: 10px;
-      padding-bottom: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-dim);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      opacity: 0.8;
-    }
-  </style>
+        :root {
+            --bg-deep: #030712;
+            --card-fill: rgba(17, 24, 39, 0.8);
+            --accent: #6366f1;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --text-dim: #9ca3af;
+            --ios-wallpaper: url('https://images.unsplash.com/photo-1620207418302-439c387441b0?q=80&w=1967&auto=format&fit=crop');
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
+
+        body {
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- APPLE STYLE HERO HEADING --- */
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 100;
+            transition: all 0.8s ease;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin: 0;
+            background: linear-gradient(to right, #4d4d4d 0%, #ffffff 50%, #4d4d4d 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
+        }
+
+        .hero-subtitle {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .iphone-wrapper.expanded ~ .hero-banner {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+        }
+
+        /* --- iOS SYSTEM ALERT --- */
+        .ios-alert-popup {
+            width: 270px !important;
+            background: rgba(35, 35, 35, 0.8) !important;
+            backdrop-filter: blur(30px) saturate(180%) !important;
+            border-radius: 14px !important;
+            padding: 0 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif !important;
+            border: none !important;
+        }
+        .ios-alert-title { color: #fff !important; font-size: 17px !important; font-weight: 600 !important; padding: 20px 16px 4px 16px !important; text-align: center !important; }
+        .ios-alert-text { color: #fff !important; font-size: 13px !important; padding: 0 16px 20px 16px !important; text-align: center !important; border-bottom: 0.5px solid rgba(255,255,255,0.15) !important; line-height: 1.4; }
+        .ios-actions-container { display: flex !important; width: 100% !important; }
+        .ios-btn-cancel { flex: 1; background: transparent; color: #007aff; font-size: 17px; padding: 12px 0; border: none; border-right: 0.5px solid rgba(255,255,255,0.15); cursor: pointer; }
+        .ios-btn-reset { flex: 1; background: transparent; color: #ff3b30; font-size: 17px; padding: 12px 0; border: none; font-weight: 600; cursor: pointer; }
+
+        /* --- WIDER iOS BANNER --- */
+        .swal2-container.ios-banner-container { padding: 10px 0 !important; display: flex !important; justify-content: center !important; align-items: flex-start !important; pointer-events: none; }
+        .ios-banner-frame { background: rgba(20, 20, 20, 0.9) !important; backdrop-filter: blur(40px) saturate(180%) !important; border-radius: 50px !important; padding: 12px 24px !important; display: flex !important; align-items: center !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important; border: 0.5px solid rgba(255,255,255,0.15) !important; width: auto !important; min-width: 340px !important; margin-top: 15px !important; pointer-events: auto; }
+        .ios-banner-icon { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; flex-shrink: 0; margin-right: 16px; }
+        .ios-banner-body { text-align: left; flex: 1; }
+        .ios-banner-app-name { color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .ios-banner-msg { color: #fff; font-size: 14px; font-weight: 500; margin-top: 1px; white-space: nowrap; }
+        .ios-slide-in { animation: ios-in 0.65s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+        .ios-slide-out { animation: ios-out 0.45s cubic-bezier(0.47, 0, 0.745, 0.715) forwards !important; }
+
+        @keyframes ios-in { 0% { transform: translateY(-120%) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes ios-out { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-150%) scale(0.9); opacity: 0; } }
+
+        /* --- UI WRAPPER STYLES --- */
+        .iphone-wrapper {
+            position: relative;
+            height: 75vh;
+            aspect-ratio: 430 / 932;
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .iphone-wrapper.expanded { aspect-ratio: 16 / 9; height: 85vh; width: 90vw; }
+
+        .iphone-chassis {
+            position: absolute;
+            inset: 0;
+            background: #111;
+            border: 12px solid #1f1f1f;
+            border-radius: 55px;
+            box-shadow: 0 0 0 4px #333, 0 50px 100px rgba(0,0,0,0.9);
+            overflow: hidden;
+            display: flex;
+        }
+
+        .layer { position: absolute; inset: 0; transition: transform 0.8s cubic-bezier(0.2, 1, 0.2, 1), opacity 0.5s; }
+
+        .home-screen {
+            background: var(--ios-wallpaper) center/cover;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; 
+            align-items: center;
+            padding: 100px 40px; 
+        }
+
+        .iphone-wrapper.expanded .home-screen { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+
+        .app-content {
+            flex: 1; background: var(--bg-deep); display: flex; flex-direction: column; padding: 40px;
+            opacity: 0; pointer-events: none; transform: scale(0.95); transition: all 0.6s 0.2s; overflow-y: auto;
+        }
+
+        .iphone-wrapper.expanded .app-content { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px var(--success); }
+
+        .grid-layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 25px; margin-bottom: 25px; }
+
+        .card { 
+            background: var(--card-fill); border-radius: 32px; padding: 30px; 
+            border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+        }
+
+        .label { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .amount-big { font-size: 3.2rem; font-weight: 800; color: #fff; letter-spacing: -2px; }
+        
+        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .mini-card { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .mini-val { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
+        .mini-multi { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; display: block; line-height: 1.3; }
+
+        input {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+            padding: 20px; border-radius: 15px; color: #fff; font-size: 1.2rem; text-align: center; outline: none;
+        }
+
+        .btn-primary {
+            width: 100%; background: var(--accent); color: white; border: none; 
+            padding: 20px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 15px;
+        }
+
+        .app-icon {
+            width: 70px; height: 70px; border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .home-bar {
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            width: 140px; height: 5px; background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px; z-index: 5001; cursor: pointer;
+        }
+
+        .status-pill { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; display: inline-block; margin-bottom: 15px; }
+        .safe { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .warn { background: rgba(244, 63, 94, 0.1); color: var(--danger); }
+    </style>
 </head>
 <body>
 
-<div class="app-container" id="app">
-  <div class="header">
-    <h1>Budget Tracker</h1>
-    <div class="header-info">
-      <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);">
-        <span class="live-dot"></span>LIVE SESSION
-      </div>
-      <div id="real-time" class="date-time">Loading...</div>
+    <div class="hero-banner">
+        <h1 class="hero-title">My Budget App</h1>
+        <p class="hero-subtitle">Developed by Shahi - 2026</p>
     </div>
-  </div>
 
-  <!-- Primary Balance Card -->
-  <div class="main-card">
-    <div id="status-pill" class="status-pill safe">SYSTEM READY</div>
-    <div class="label">Pocket Remaining</div>
-    <div class="amount-big" id="pocket-usd">$0.00</div>
-    <div class="sub-values" id="pocket-multi">--- MVR | --- LKR</div>
-    
-    <div id="rate-ticker" class="rate-ticker">SYNCING MARKET DATA...</div>
+    <div class="iphone-wrapper" id="iphone">
+        <div class="iphone-chassis">
+            <div class="layer home-screen">
+                <div class="app-icon" onclick="toggleView(true)">
+                    <span style="color:white; font-size:32px; font-weight:800;">$</span>
+                </div>
+                <p style="color: white; font-size: 13px; margin-top: 10px; font-weight: 700; text-align:center;">Budget</p>
+            </div>
 
-    <div class="stat-row">
-      <div class="mini-card">
-        <div class="label">Total Spent</div>
-        <div class="val" id="spent-total-usd" style="color: var(--danger);">$0.00</div>
-        <span class="multi" id="spent-total-multi">0 MVR | 0 LKR</span>
-      </div>
-      <div class="mini-card">
-        <div class="label">Est. Savings</div>
-        <div class="val" id="savings-total" style="color: var(--success);">$400.00</div>
-        <span class="multi" id="savings-multi">0 MVR | 0 LKR</span>
-      </div>
+            <div class="app-content" id="scroll-area">
+                <div class="header">
+                    <h1 style="color:#fff; font-size:1.8rem; font-weight:800;">Budget Tracker</h1>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">
+                            <span class="live-dot"></span>LIVE SESSION
+                        </div>
+                        <div id="real-time" style="color: var(--text-dim); font-size: 0.7rem; margin-top: 5px;">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="card">
+                        <div id="status-pill" class="status-pill safe">BUDGET ON TRACK</div>
+                        <div class="label">Pocket Remaining</div>
+                        <div class="amount-big" id="pocket-usd">$0.00</div>
+                        <div style="color: var(--text-dim); font-weight: 700; font-size: 0.9rem;" id="pocket-multi">--- MVR | --- LKR</div>
+                        <div id="rate-ticker" style="color:var(--accent); font-size:0.8rem; font-weight:700; margin-top:15px;">SYNCING MARKET DATA...</div>
+
+                        <div class="stat-row">
+                            <div class="mini-card">
+                                <div class="label">Total Spent</div>
+                                <div id="spent-total-usd" class="mini-val" style="color: var(--danger);">$0.00</div>
+                                <span id="spent-total-multi" class="mini-multi">0 MVR | 0 LKR</span>
+                            </div>
+                            <div class="mini-card">
+                                <div class="label">Est. Savings</div>
+                                <div id="savings-total" class="mini-val" style="color: var(--success);">$0.00</div>
+                                <span id="savings-multi" class="mini-multi">0 MVR | 0 LKR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+                        <div class="label">Quick Expense Log</div>
+                        <input type="number" id="mvr-input" placeholder="Value in MVR" inputmode="decimal">
+                        <button class="btn-primary" onclick="addExpense()">Confirm Transaction</button>
+                        <button onclick="resetData()" style="background:none; border:none; color:var(--text-dim); font-size:0.7rem; margin-top:20px; cursor:pointer; font-weight:700;">RESET MONTHLY DATA</button>
+                    </div>
+                </div>
+
+                <div class="card" style="min-height: 480px;">
+                    <div class="label" style="text-align: center; margin-bottom: 25px;">Monthly Allocation Breakdown</div>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="text-align:center; padding: 40px 0; color: var(--text-dim); font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">
+                    Developed by Shahi - 2026
+                </div>
+            </div>
+        </div>
+        <div class="home-bar" onclick="toggleView(false)"></div>
     </div>
-  </div>
 
-  <!-- Entry Card -->
-  <div class="main-card" style="padding: 24px;">
-    <div class="label">Quick Expense Log</div>
-    <input type="number" id="mvr-input" placeholder="Value in MVR" inputmode="decimal">
-    <button class="btn-primary" onclick="addExpense()">Confirm Transaction</button>
-    <button onclick="resetData()" style="width:100%; background:none; border:none; color:var(--text-dim); font-size:0.7rem; margin-top:15px; cursor:pointer; font-weight:700; letter-spacing:1px;">RESET MONTHLY DATA</button>
-  </div>
+    <script>
+        let isExpanded = false;
+        function toggleView(state) {
+            const el = document.getElementById('iphone');
+            isExpanded = state;
+            if(isExpanded) { el.classList.add('expanded'); initFirebase(); } 
+            else { el.classList.remove('expanded'); }
+        }
 
-  <!-- Chart Card -->
-  <div class="main-card">
-    <div class="label" style="text-align: center; margin-bottom: 20px;">Monthly Allocation Breakdown</div>
-    <div class="chart-container">
-      <canvas id="myChart"></canvas>
-    </div>
-  </div>
+        function updateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('real-time').innerText = `${dateStr} | ${timeStr}`;
+        }
+        setInterval(updateTime, 1000); updateTime();
 
-  <div class="footer">
-    This is developed by Shahinth - 2026
-  </div>
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ8iPyHCMzK3zyrYEBzDvidRJxpQ4EZaY",
+            authDomain: "mybudget-d79e6.firebaseapp.com",
+            databaseURL: "https://mybudget-d79e6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "mybudget-d79e6",
+            storageBucket: "mybudget-d79e6.firebasestorage.app",
+            messagingSenderId: "258880197131",
+            appId: "1:258880197131:web:f228ad55f3f7c0c9972d0e"
+        };
 
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+        let RATE_MVR = 15.42; let RATE_LKR = 298.50; 
+        const LIMIT_USD = 150; const BASE_SAVINGS = 400; const COUNTRY_SEND = 350;
+        let currentSpentMvr = 0; let myChartObj;
 
-<script>
-  // UPDATED: Time & Date Logic
-  function updateTime() {
-    const now = new Date();
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    const dateStr = now.toLocaleDateString('en-US', options);
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    document.getElementById('real-time').innerText = `${dateStr} | ${timeStr}`;
-  }
-  setInterval(updateTime, 1000);
-  updateTime();
+        function initFirebase() {
+            if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); fetchRates(); }
+            firebase.database().ref('spentMvr').on('value', (snap) => {
+                currentSpentMvr = snap.val() || 0; refreshUI();
+            });
+        }
 
-  window.onload = () => {
-    gsap.to("#app", { opacity: 1, y: -20, duration: 1, ease: "power4.out" });
-  };
+        async function fetchRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if (data && data.rates) {
+                    RATE_MVR = data.rates.MVR; RATE_LKR = data.rates.LKR;
+                    document.getElementById('rate-ticker').innerText = `1 USD = ${RATE_MVR.toFixed(2)} MVR | ${RATE_LKR.toFixed(2)} LKR`;
+                    refreshUI();
+                }
+            } catch (err) { console.warn("Rate fetch failed"); }
+        }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDQ8iPyHCMzK3zyrYEBzDvidRJxpQ4EZaY",
-    authDomain: "mybudget-d79e6.firebaseapp.com",
-    databaseURL: "https://mybudget-d79e6-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "mybudget-d79e6",
-    storageBucket: "mybudget-d79e6.firebasestorage.app",
-    messagingSenderId: "258880197131",
-    appId: "1:258880197131:web:f228ad55f3f7c0c9972d0e"
-  };
+        function refreshUI() {
+            const spentUsd = currentSpentMvr / RATE_MVR;
+            const remainingUsd = Math.max(0, LIMIT_USD - spentUsd);
+            const overUsd = Math.max(0, spentUsd - LIMIT_USD);
+            const finalSavingsUsd = Math.max(0, BASE_SAVINGS - overUsd);
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const spentRef = db.ref('spentMvr');
+            document.getElementById('pocket-usd').innerText = `$${remainingUsd.toFixed(2)}`;
+            document.getElementById('pocket-multi').innerText = `${(remainingUsd * RATE_MVR).toLocaleString(undefined, {maximumFractionDigits:0})} MVR | ${(remainingUsd * RATE_LKR).toLocaleString(undefined, {maximumFractionDigits:0})} LKR`;
+            document.getElementById('spent-total-usd').innerText = `$${spentUsd.toFixed(2)}`;
+            document.getElementById('spent-total-multi').innerText = `${currentSpentMvr.toLocaleString(undefined, {maximumFractionDigits:0})} MVR | ${(spentUsd * RATE_LKR).toLocaleString(undefined, {maximumFractionDigits:0})} LKR`;
+            document.getElementById('savings-total').innerText = `$${finalSavingsUsd.toFixed(2)}`;
+            document.getElementById('savings-multi').innerText = `${(finalSavingsUsd * RATE_MVR).toLocaleString(undefined, {maximumFractionDigits:0})} MVR | ${(finalSavingsUsd * RATE_LKR).toLocaleString(undefined, {maximumFractionDigits:0})} LKR`;
 
-  let RATE_MVR = 15.42; 
-  let RATE_LKR = 298.50; 
-  const LIMIT_USD = 150;
-  const BASE_SAVINGS = 400;
-  const COUNTRY_SEND = 350;
+            const pill = document.getElementById('status-pill');
+            if(overUsd > 0) { pill.innerText = "BUDGET OVER LIMIT"; pill.className = "status-pill warn"; } 
+            else { pill.innerText = "BUDGET ON TRACK"; pill.className = "status-pill safe"; }
+            renderChart(spentUsd, remainingUsd, finalSavingsUsd);
+        }
 
-  let currentSpentMvr = 0;
-  let myChartObj;
-
-  async function fetchRates() {
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD');
-      const data = await res.json();
-      if (data && data.rates) {
-        RATE_MVR = data.rates.MVR;
-        RATE_LKR = data.rates.LKR;
-        document.getElementById('rate-ticker').innerText = `1 USD = ${RATE_MVR.toFixed(2)} MVR | ${RATE_LKR.toFixed(2)} LKR`;
-        refreshUI();
-      }
-    } catch (err) { console.warn("Rate fetch failed"); }
-  }
-
-  spentRef.on('value', (snap) => {
-    currentSpentMvr = snap.val() || 0;
-    refreshUI();
-  });
-
-  function refreshUI() {
-    const spentUsd = currentSpentMvr / RATE_MVR;
-    const remainingUsd = Math.max(0, LIMIT_USD - spentUsd);
-    const overUsd = Math.max(0, spentUsd - LIMIT_USD);
-    const finalSavingsUsd = BASE_SAVINGS - overUsd;
-
-    document.getElementById('pocket-usd').innerText = `$${remainingUsd.toFixed(2)}`;
-    document.getElementById('pocket-multi').innerText = `${(remainingUsd * RATE_MVR).toFixed(0)} MVR | ${(remainingUsd * RATE_LKR).toFixed(0)} LKR`;
-    
-    document.getElementById('spent-total-usd').innerText = `$${spentUsd.toFixed(2)}`;
-    document.getElementById('spent-total-multi').innerText = `${currentSpentMvr.toFixed(0)} MVR | ${(spentUsd * RATE_LKR).toFixed(0)} LKR`;
-
-    document.getElementById('savings-total').innerText = `$${Math.max(0, finalSavingsUsd).toFixed(2)}`;
-    document.getElementById('savings-multi').innerText = `${(Math.max(0, finalSavingsUsd) * RATE_MVR).toFixed(0)} MVR | ${(Math.max(0, finalSavingsUsd) * RATE_LKR).toFixed(0)} LKR`;
-
-    const pill = document.getElementById('status-pill');
-    if(overUsd > 0) {
-      pill.innerText = "BUDGET OVER LIMIT";
-      pill.className = "status-pill warn";
-    } else {
-      pill.innerText = "BUDGET ON TRACK";
-      pill.className = "status-pill safe";
-    }
-
-    renderChart(spentUsd, remainingUsd, finalSavingsUsd);
-  }
-
-  function addExpense() {
-    const input = document.getElementById('mvr-input');
-    const val = parseFloat(input.value);
-    if (val > 0) {
-      gsap.to(".btn-primary", { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
-      spentRef.set(currentSpentMvr + val);
-      input.value = '';
-    }
-  }
-
-  function resetData() {
-    if(confirm("Confirm: This will clear all expenses for the current month.")) spentRef.set(0);
-  }
-
-  function renderChart(spent, left, savings) {
-    const ctx = document.getElementById('myChart').getContext('2d');
-    if (myChartObj) myChartObj.destroy();
-
-    const dataValues = [COUNTRY_SEND, Math.max(0, savings), spent];
-    const labels = ['Fixed Transfer', 'Projected Savings', 'Current Spending'];
-
-    myChartObj = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: dataValues,
-          backgroundColor: ['#6366f1', '#10b981', '#f43f5e'],
-          borderWidth: 0,
-          hoverOffset: 25
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { 
-            position: 'bottom', 
-            labels: { color: '#9ca3af', font: { family: 'Plus Jakarta Sans', weight: '600', size: 11 }, padding: 20 } 
-          },
-          tooltip: {
-            backgroundColor: 'rgba(3, 7, 18, 0.95)',
-            titleFont: { size: 14, weight: '800' },
-            bodyFont: { size: 12 },
-            padding: 15,
-            cornerRadius: 15,
-            displayColors: true,
-            callbacks: {
-              label: function(context) {
-                const usd = context.parsed;
-                const mvr = (usd * RATE_MVR).toLocaleString(undefined, {maximumFractionDigits: 0});
-                const lkr = (usd * RATE_LKR).toLocaleString(undefined, {maximumFractionDigits: 0});
-                return [
-                  ` USD: $${usd.toFixed(2)}`,
-                  ` MVR: ${mvr}`,
-                  ` LKR: ${lkr}`
-                ];
-              }
+        function addExpense() {
+            const input = document.getElementById('mvr-input');
+            const val = parseFloat(input.value);
+            if (val > 0) {
+                firebase.database().ref('spentMvr').set(currentSpentMvr + val);
+                input.value = '';
+                gsap.from(".amount-big", { scale: 0.8, duration: 0.3, ease: "back.out" });
             }
-          }
-        },
-        cutout: '75%'
-      }
-    });
-  }
+        }
 
-  fetchRates();
-</script>
+        function resetData() {
+            Swal.fire({
+                title: 'Reset Monthly Data?',
+                html: 'Current spending records will be cleared permanently.',
+                showConfirmButton: false, showCancelButton: false,
+                background: 'transparent',
+                customClass: { popup: 'ios-alert-popup', title: 'ios-alert-title', htmlContainer: 'ios-alert-text' },
+                footer: `<div class="ios-actions-container"><button onclick="Swal.close()" class="ios-btn-cancel">Cancel</button><button onclick="confirmReset()" class="ios-btn-reset">Reset</button></div>`
+            });
+        }
+
+        function confirmReset() {
+            Swal.close();
+            firebase.database().ref('spentMvr').set(0).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 3500,
+                    background: 'transparent',
+                    customClass: { container: 'ios-banner-container', popup: 'ios-banner-frame' },
+                    showClass: { popup: 'ios-slide-in' },
+                    hideClass: { popup: 'ios-slide-out' },
+                    html: `
+                        <div class="ios-banner-icon">$</div>
+                        <div class="ios-banner-body">
+                            <div class="ios-banner-app-name">Budget Pro</div>
+                            <div class="ios-banner-msg">All Spending Records Cleared</div>
+                        </div>
+                    `
+                });
+            });
+        }
+
+        function renderChart(spent, left, savings) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if (myChartObj) myChartObj.destroy();
+            myChartObj = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fixed Transfer', 'Savings', 'Spending'],
+                    datasets: [{
+                        data: [COUNTRY_SEND, savings, spent],
+                        backgroundColor: ['#6366f1', '#10b981', '#f43f5e'],
+                        borderWidth: 0,
+                        hoverOffset: 25
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 12, weight: '600' }, padding: 20 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const usd = context.parsed;
+                                    const mvr = (usd * RATE_MVR).toLocaleString(undefined, {maximumFractionDigits: 0});
+                                    const lkr = (usd * RATE_LKR).toLocaleString(undefined, {maximumFractionDigits: 0});
+                                    return [ ` USD: $${usd.toFixed(2)}`, ` MVR: ${mvr}`, ` LKR: ${lkr}` ];
+                                }
+                            }
+                        }
+                    },
+                    cutout: '75%'
+                }
+            });
+        }
+    </script>
 </body>
 </html>
